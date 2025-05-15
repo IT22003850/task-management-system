@@ -43,7 +43,7 @@ A full-stack MERN application for managing tasks with Google OAuth authenticatio
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/task-management-system.git
+git clone https://github.com/IT22003850/task-management-system.git
 cd task-management-system
 ```
 

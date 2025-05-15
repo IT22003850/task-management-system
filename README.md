@@ -120,7 +120,6 @@ cd task-management-system
 
 ## Screenshots
 
-*Note*: Add screenshots to `screenshots/` folder and update paths below.
 
 - **Login Page**:  
   ![Login](screenshots/login.png)

@@ -127,11 +127,13 @@ cd task-management-system
 - **Dashboard**:  
   ![Dashboard](screenshots/dashboard.png)
 - **Task List**:  
-  ![Task List](screenshots/task-list.png)
+  ![Task List](screenshots/tasklist.png)
+- **Task List**:  
+  ![View Task](screenshots/viewtask.png)
 - **Edit Task**:  
-  ![Edit Task](screenshots/edit-task.png)
+  ![Edit Task](screenshots/edittask.png)
 - **Settings**:  
-  ![Settings](screenshots/settings.png)
+  ![Settings](screenshots/profile.png)
 
 ## Deployment (Optional)
 

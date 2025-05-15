@@ -127,7 +127,7 @@ cd task-management-system
   ![Dashboard](screenshots/dashboard.png)
 - **Task List**:  
   ![Task List](screenshots/tasklist.png)
-- **Task List**:  
+- **View Task**:  
   ![View Task](screenshots/viewtask.png)
 - **Edit Task**:  
   ![Edit Task](screenshots/edittask.png)

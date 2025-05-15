@@ -163,7 +163,3 @@ For a live demo, deploy the backend to Render and the frontend to Netlify:
   - Ensure `REACT_APP_API_URL` matches the backend URL.
   - Check browser console (F12 > Console) for errors.
 
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.

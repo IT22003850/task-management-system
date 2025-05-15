@@ -1,13 +1,32 @@
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load .env file first
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+// Debug environment variables
+console.log('Environment Variables Loaded:');
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
+console.log('MONGO_URI:', process.env.MONGO_URI ? 'Set' : 'Not Set');
+console.log('SESSION_SECRET:', process.env.SESSION_SECRET);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('PORT:', process.env.PORT);
+
+// Check if critical variables are set
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+  console.error('Error: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is not set. Check .env file.');
+  process.exit(1);
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const passport = require('./middlewares/passport');
 const session = require('express-session');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 
-dotenv.config();
 const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
@@ -22,9 +41,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 app.use('/auth', authRoutes);
 app.use('/tasks', taskRoutes);

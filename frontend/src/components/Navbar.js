@@ -1,12 +1,20 @@
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = ({ user }) => {
   const navigate = useNavigate();
 
+
   const handleLogout = async () => {
-    await axios.get('http://localhost:5000/auth/logout', { withCredentials: true });
-    navigate('/login');
+    try {
+      await axios.get("http://localhost:5000/auth/logout", {
+        withCredentials: true,
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      navigate("/login"); // Navigate even if the request fails
+    }
   };
 
   return (
@@ -16,11 +24,14 @@ const Navbar = ({ user }) => {
           Task Manager
         </Link>
         <div className="flex items-center space-x-4">
+          <Link to="/dashboard" className="text-white hover:text-gray-200">
+            Dashboard
+          </Link>
           <Link to="/tasks" className="text-white hover:text-gray-200">
             Tasks
           </Link>
           <Link to="/settings" className="text-white hover:text-gray-200">
-            Settings
+            Profile
           </Link>
           <button
             onClick={handleLogout}

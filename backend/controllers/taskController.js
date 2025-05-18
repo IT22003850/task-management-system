@@ -20,15 +20,7 @@ exports.createTask = async (req, res) => {
 
 exports.getTasks = async (req, res) => {
   try {
-    const { search, status } = req.query;
-    let query = { userId: req.user.id };
-    if (search) {
-      query.title = { $regex: search, $options: 'i' };
-    }
-    if (status) {
-      query.status = status;
-    }
-    const tasks = await Task.find(query).sort({ deadline: 1 });
+    const tasks = await Task.find({ userId: req.user.id }).sort({ deadline: 1 });
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -74,26 +66,3 @@ exports.deleteTask = async (req, res) => {
   }
 };
 
-exports.generatePDF = async (req, res) => {
-  try {
-    const tasks = await Task.find({ userId: req.user.id });
-    const PDFDocument = require('pdfkit');
-    const doc = new PDFDocument();
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=tasks.pdf');
-    doc.pipe(res);
-    doc.fontSize(20).text('Task Report', { align: 'center' });
-    doc.moveDown();
-    tasks.forEach((task, index) => {
-      doc.fontSize(12).text(`${index + 1}. ${task.title}`);
-      doc.text(`Description: ${task.description}`);
-      doc.text(`Deadline: ${new Date(task.deadline).toLocaleDateString()}`);
-      doc.text(`Assigned To: ${task.assignedTo}`);
-      doc.text(`Status: ${task.status}`);
-      doc.moveDown();
-    });
-    doc.end();
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};

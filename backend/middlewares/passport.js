@@ -1,6 +1,9 @@
+//configures Google OAuth strategy using passport-google-oauth20.
+
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+//Registers Google login.
 passport.use(
   new GoogleStrategy(
     {
@@ -9,11 +12,14 @@ passport.use(
       callbackURL: '/auth/google/callback',
     },
     (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
+      return done(null, profile); //tells Passport to proceed and store the user.
     }
   )
 );
 
+
+//Passport uses sessions to track login state.
+//define how to store and retrieve the user in session.
 passport.serializeUser((user, done) => {
   done(null, user);
 });

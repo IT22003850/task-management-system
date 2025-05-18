@@ -4,15 +4,14 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { debounce } from 'lodash'; // For search debouncing
 
 const TaskList = () => {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,9 +19,7 @@ const TaskList = () => {
         setIsLoading(true);
         const [userResponse, tasksResponse] = await Promise.all([
           axios.get('http://localhost:5000/auth/user', { withCredentials: true }),
-          axios.get(`http://localhost:5000/tasks?search=${search}&status=${status}`, {
-            withCredentials: true,
-          }),
+          axios.get('http://localhost:5000/tasks', { withCredentials: true }),
         ]);
         setUser(userResponse.data.user);
         setTasks(tasksResponse.data);
@@ -33,7 +30,7 @@ const TaskList = () => {
       }
     };
     fetchData();
-  }, [search, status]);
+  }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
@@ -53,7 +50,7 @@ const TaskList = () => {
     doc.text('Task Report', 20, 10);
     autoTable(doc, {
       head: [['Title', 'Description', 'Deadline', 'Assigned To', 'Status']],
-      body: tasks.map((task) => [
+      body: filteredTasks.map((task) => [
         task.title,
         task.description || '',
         task.deadline ? new Date(task.deadline).toLocaleDateString() : 'N/A',
@@ -64,10 +61,12 @@ const TaskList = () => {
     doc.save('tasks.pdf');
   };
 
-  // Debounce search input
-  const handleSearch = debounce((value) => {
-    setSearch(value);
-  }, 300);
+  // Filter tasks based on search query and status
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || task.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   if (isLoading) {
     return (
@@ -93,8 +92,44 @@ const TaskList = () => {
           Task List
         </h1>
 
-        {/* Actions and Filters */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search by title..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full py-2 px-4 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            <svg
+              className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             <Link
               to="/tasks/add"
@@ -115,29 +150,11 @@ const TaskList = () => {
               Download PDF
             </button>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Search by title..."
-              onChange={(e) => handleSearch(e.target.value)}
-              className="border border-gray-300 p-2 rounded-lg w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            >
-              <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-            </select>
-          </div>
         </div>
 
         {/* Task Count */}
         <div className="mb-4 text-gray-600 text-lg">
-          Showing {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+          Showing {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
         </div>
 
         {/* Task Table */}
@@ -152,7 +169,7 @@ const TaskList = () => {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task, index) => (
+              {filteredTasks.map((task, index) => (
                 <tr
                   key={task._id}
                   className="border-t hover:bg-gray-50 transition-all animate-slide-up"
